@@ -1,0 +1,333 @@
+/*╔══════════════════════════════════════════════════════════════════════════╗
+  ║  DON-PRL • Regenera Signature • © 2025 Don Paulo Ricardo de Leão        ║
+  ║  File......: schema.prisma                                               ║
+  ║  Purpose...: Database schema completo - Regenera Bank Enterprise         ║
+  ║  License...: Proprietary • All rights reserved                           ║
+  ╚══════════════════════════════════════════════════════════════════════════╝*/
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// USER MANAGEMENT
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model User {
+  id                String          @id @default(uuid())
+  email             String          @unique
+  password          String
+  name              String
+  cpf               String?         @unique
+  phone             String?
+  balance           Decimal         @default(0) @db.Decimal(15, 2)
+  emailVerified     Boolean         @default(false)
+  phoneVerified     Boolean         @default(false)
+  twoFactorEnabled  Boolean         @default(false)
+  twoFactorSecret   String?
+  biometricEnabled  Boolean         @default(false)
+  biometricData     String?
+  status            UserStatus      @default(ACTIVE)
+  role              UserRole        @default(USER)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Relations
+  accounts          Account[]
+  transactions      Transaction[]
+  pixKeys           PixKey[]
+  cryptoHoldings    CryptoHolding[]
+  investments       Investment[]
+  carbonCredits     CarbonCredit[]
+  badges            UserBadge[]
+  quests            UserQuest[]
+  notifications     Notification[]
+  
+  // Gamification
+  xp                Int             @default(0)
+  level             Int             @default(1)
+  
+  @@map("users")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BLOCKED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// ACCOUNTS & TRANSACTIONS
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model Account {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  accountType AccountType
+  balance     Decimal       @default(0) @db.Decimal(15, 2)
+  currency    String        @default("BRL")
+  status      AccountStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@map("accounts")
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  INVESTMENT
+  CRYPTO
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  FROZEN
+}
+
+model Transaction {
+  id              String            @id @default(uuid())
+  userId          String
+  user            User              @relation(fields: [userId], references: [id])
+  type            TransactionType
+  category        String?
+  amount          Decimal           @db.Decimal(15, 2)
+  currency        String            @default("BRL")
+  description     String?
+  status          TransactionStatus @default(PENDING)
+  fromAccount     String?
+  toAccount       String?
+  metadata        Json?
+  createdAt       DateTime          @default(now())
+  completedAt     DateTime?
+  
+  @@map("transactions")
+  @@index([userId, createdAt])
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  PIX
+  PAYMENT
+  INVESTMENT
+  CRYPTO
+  CARBON
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// PIX
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model PixKey {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  keyType   PixKeyType
+  keyValue  String    @unique
+  status    PixKeyStatus @default(ACTIVE)
+  createdAt DateTime  @default(now())
+  
+  @@map("pix_keys")
+}
+
+enum PixKeyType {
+  CPF
+  CNPJ
+  EMAIL
+  PHONE
+  RANDOM
+}
+
+enum PixKeyStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// CRYPTOCURRENCY
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model CryptoHolding {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  symbol       String
+  amount       Decimal  @db.Decimal(20, 8)
+  avgBuyPrice  Decimal  @db.Decimal(15, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([userId, symbol])
+  @@map("crypto_holdings")
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// INVESTMENTS
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model Investment {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+  productId     String
+  productName   String
+  productType   InvestmentType
+  amount        Decimal         @db.Decimal(15, 2)
+  units         Decimal?        @db.Decimal(15, 8)
+  currentValue  Decimal?        @db.Decimal(15, 2)
+  status        InvestmentStatus @default(ACTIVE)
+  purchaseDate  DateTime        @default(now())
+  maturityDate  DateTime?
+  
+  @@map("investments")
+}
+
+enum InvestmentType {
+  FIXED_INCOME
+  STOCKS
+  FUNDS
+  REAL_ESTATE
+}
+
+enum InvestmentStatus {
+  ACTIVE
+  SOLD
+  MATURED
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// CARBON CREDITS & ESG
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model CarbonCredit {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  projectId   String
+  projectName String
+  credits     Int
+  co2Offset   Decimal  @db.Decimal(10, 2)
+  price       Decimal  @db.Decimal(10, 2)
+  purchaseDate DateTime @default(now())
+  
+  @@map("carbon_credits")
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// GAMIFICATION
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model Badge {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String
+  icon        String
+  requirement String
+  xpReward    Int
+  users       UserBadge[]
+  
+  @@map("badges")
+}
+
+model UserBadge {
+  id       String   @id @default(uuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+  badgeId  String
+  badge    Badge    @relation(fields: [badgeId], references: [id])
+  earnedAt DateTime @default(now())
+  
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}
+
+model Quest {
+  id          String      @id @default(uuid())
+  title       String
+  description String
+  requirement Json
+  xpReward    Int
+  status      QuestStatus @default(ACTIVE)
+  users       UserQuest[]
+  
+  @@map("quests")
+}
+
+enum QuestStatus {
+  ACTIVE
+  INACTIVE
+  COMPLETED
+}
+
+model UserQuest {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  questId     String
+  quest       Quest       @relation(fields: [questId], references: [id])
+  progress    Int         @default(0)
+  status      QuestStatus @default(ACTIVE)
+  startedAt   DateTime    @default(now())
+  completedAt DateTime?
+  
+  @@unique([userId, questId])
+  @@map("user_quests")
+}
+
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+// NOTIFICATIONS
+// ══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  body      String
+  read      Boolean            @default(false)
+  metadata  Json?
+  createdAt DateTime           @default(now())
+  
+  @@map("notifications")
+  @@index([userId, createdAt])
+}
+
+enum NotificationType {
+  TRANSACTION
+  INVESTMENT
+  SECURITY
+  MARKETING
+  SYSTEM
+}
+
+/*╔══════════════════════════════════════════════════════════════════════════╗
+  ║                     DON-PRL • REGENERA SIGNATURE                          ║
+  ║              © 2025 Don Paulo Ricardo de Leão                             ║
+  ╚══════════════════════════════════════════════════════════════════════════╝*/
