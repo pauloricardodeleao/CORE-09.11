@@ -572,7 +572,7 @@ Logs estruturados em JSON com Winston:
 
 ## 👨‍💻 Autor
 
-**Don Paulo Ricardo de Leão**  
+**Don Paulo Ricardo de Leão**  e Raphaela Cervesky
 **Assinatura**: DON-PRL  
 **Email**: don@regenera.bank  
 **GitHub**: @don-prl  
@@ -581,7 +581,7 @@ Logs estruturados em JSON com Winston:
 
 ## 📄 Licença
 
-© 2025 Don Paulo Ricardo de Leão. **All rights reserved**.
+© 2025 Don Paulo Ricardo de Leão e Raphaela Cervesky. **All rights reserved**.
 
 Este projeto é **proprietary** e protegido por direitos autorais. Não é permitido:
 - Uso comercial sem autorização
@@ -597,9 +597,9 @@ Para obter uma licença, entre em contato: don@regenera.bank
 ╔══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════╗
 ║                                                                            ║
 ║              REGENERA BANK ENTERPRISE V4.Ω                                 ║
-║              Don Paulo Ricardo de Leão • DON-PRL                           ║
-║                                                                            ║
-║  "Verbo algorítmico manifestado em estado de produção transcendente"      ║
+║              Don Paulo Ricardo de Leão • DON-PRL DEVELOPER                 ║
+║              Raphaela Cervesky CEO                                         ║
+║  "Verbo algorítmico manifestado em estado de produção transcendente"       ║
 ║                                                                            ║
 ║                © 2025 • All Rights Reserved                                ║
 ║                                                                            ║
