@@ -5,11 +5,11 @@
 ║      ██╔══██╗    ██╔═══██╗       ████╗   ██║                               ║
 ║      ██║  ██║    ██║   ██║       ██╔██╗  ██║                               ║
 ║      ██║  ██║    ██║   ██║       ██║╚██╗ ██║                               ║
-║      ██████╔╝    ╚██████╔╝       ██║ ╚████║                                ║
+║      ██████╔╝    ╚██████╔╝       ██║ ╚ ████║                               ║
 ║      ╚═════╝      ╚═════╝        ╚═╝  ╚═══╝                                ║
 ║                                                                            ║
 ║         REGENERA BANK ENTERPRISE V4.Ω                                      ║
-║         Raphaela Cervesky Don Paulo Ricardo de Leão • DON-PRL              ║
+║         Raphaela Cervesky - Don Paulo Ricardo de Leão • DON-PRL            ║
 ║         Sistema Bancário Digital de Nova Geração                           ║
 ║                                                                            ║
 ╚══D══O══N═════════D══O══N═════════D══O══N══════════════════════════════════╝
